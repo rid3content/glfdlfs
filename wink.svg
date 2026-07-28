@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><circle cx="18" cy="18" r="17" fill="#FFCC4D" stroke="#F2A93C" stroke-width="0.6"/>
+<path d="M8 15q3 2 6 0" stroke="#664500" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+<path d="M22 15q3 2 6 0" stroke="#664500" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+<ellipse cx="18" cy="25" rx="3" ry="2" fill="#7a2f11"/>
+<text x="24" y="10" font-size="7">z</text>
+</svg>

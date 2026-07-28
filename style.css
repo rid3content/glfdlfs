@@ -1,0 +1,191 @@
+// ============================================================
+//  Профиль пользователя: аватар (base64 в Firestore), фон,
+//  анимированный SVG emoji-статус, онлайн-статус
+// ============================================================
+import { db, doc, setDoc, getDoc, updateDoc } from "./firebase-config.js";
+
+// 16 однотонных фонов
+export const SOLID_COLORS = [
+  "#FF453A", "#FF9F0A", "#FFD60A", "#34C759",
+  "#30D158", "#64D2FF", "#0A84FF", "#5E5CE6",
+  "#BF5AF2", "#FF375F", "#A2845E", "#8E8E93",
+  "#FF6482", "#32ADE6", "#FF2D55", "#4CD964"
+];
+
+// 16 градиентных фонов
+export const GRADIENTS = [
+  "linear-gradient(135deg,#FF9A9E,#FAD0C4)",
+  "linear-gradient(135deg,#A18CD1,#FBC2EB)",
+  "linear-gradient(135deg,#84FAB0,#8FD3F4)",
+  "linear-gradient(135deg,#FBC2EB,#A6C1EE)",
+  "linear-gradient(135deg,#F6D365,#FDA085)",
+  "linear-gradient(135deg,#96FBC4,#F9F586)",
+  "linear-gradient(135deg,#4FACFE,#00F2FE)",
+  "linear-gradient(135deg,#43E97B,#38F9D7)",
+  "linear-gradient(135deg,#FA709A,#FEE140)",
+  "linear-gradient(135deg,#30CFD0,#330867)",
+  "linear-gradient(135deg,#A8EDEA,#FED6E3)",
+  "linear-gradient(135deg,#FF9A9E,#FECFEF)",
+  "linear-gradient(135deg,#F78CA0,#F9748F)",
+  "linear-gradient(135deg,#E0C3FC,#8EC5FC)",
+  "linear-gradient(135deg,#F9D423,#FF4E50)",
+  "linear-gradient(135deg,#667EEA,#764BA2)"
+];
+
+export const ALL_BACKGROUNDS = [...SOLID_COLORS, ...GRADIENTS];
+
+// Набор анимированных SVG emoji (id -> файл + вид анимации + подпись)
+// У каждого эмодзи — своя, уникальная анимация (28 эмодзи = 28 разных анимаций).
+export const EMOJIS = [
+  { id: "fire",      file: "fire.svg",      anim: "flicker",   label: "Огонь" },
+  { id: "heart",     file: "heart.svg",     anim: "heartbeat", label: "Сердце" },
+  { id: "star",      file: "star.svg",      anim: "twinkle",   label: "Звезда" },
+  { id: "rocket",    file: "rocket.svg",    anim: "launch",    label: "Ракета" },
+  { id: "ghost",     file: "ghost.svg",     anim: "float",     label: "Привидение" },
+  { id: "robot",     file: "robot.svg",     anim: "glitch",    label: "Робот" },
+  { id: "party",     file: "party.svg",     anim: "confetti",  label: "Праздник" },
+  { id: "coffee",    file: "coffee.svg",    anim: "steam",     label: "Кофе" },
+  { id: "game",      file: "game.svg",      anim: "shake",     label: "Игра" },
+  { id: "rainbow",   file: "rainbow.svg",   anim: "shimmer",   label: "Радуга" },
+  { id: "lightning", file: "lightning.svg", anim: "flash",     label: "Молния" },
+  { id: "clover",    file: "clover.svg",    anim: "sway",      label: "Клевер" },
+  { id: "sun",       file: "sun.svg",       anim: "spin",      label: "Солнце" },
+  { id: "moon",      file: "moon.svg",      anim: "drift",     label: "Луна" },
+  { id: "cool",      file: "cool.svg",      anim: "nod",       label: "Крутой" },
+  { id: "laugh",     file: "laugh.svg",     anim: "jiggle",    label: "Смех" },
+  { id: "love",      file: "love.svg",      anim: "grow",      label: "Влюблён" },
+  { id: "wink",      file: "wink.svg",      anim: "blink",     label: "Подмигивание" },
+  { id: "shock",     file: "shock.svg",     anim: "jolt",      label: "Шок" },
+  { id: "sleep",     file: "sleep.svg",     anim: "bob",       label: "Сон" },
+  { id: "angry",     file: "angry.svg",     anim: "rumble",    label: "Злость" },
+  { id: "crown",     file: "crown.svg",     anim: "gleam",     label: "Корона" },
+  { id: "gem",       file: "gem.svg",       anim: "sparkle",   label: "Кристалл" },
+  { id: "cake",      file: "cake.svg",      anim: "wiggle",    label: "Торт" },
+  { id: "balloon",   file: "balloon.svg",   anim: "rise",      label: "Шарик" },
+  { id: "thumbsup",  file: "thumbsup.svg",  anim: "tap",       label: "Класс" },
+  { id: "clap",      file: "clap.svg",      anim: "clapping",  label: "Аплодисменты" },
+  { id: "muscle",    file: "muscle.svg",    anim: "flex",      label: "Сила" }
+];
+
+export function emojiById(id) {
+  return EMOJIS.find((e) => e.id === id) || null;
+}
+
+export function emojiImgHTML(id, size = 20) {
+  const emoji = emojiById(id);
+  if (!emoji) return "";
+  return `<img src="svg/emojis/${emoji.file}" class="emoji-svg anim-${emoji.anim}" style="width:${size}px;height:${size}px" alt="${emoji.label}">`;
+}
+
+// ---------- Аватар: сжатие в base64, чтобы поместилось в Firestore ----------
+export function fileToBase64Resized(file, maxSize = 220, quality = 0.75) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let { width, height } = img;
+        if (width > height) {
+          if (width > maxSize) { height *= maxSize / width; width = maxSize; }
+        } else {
+          if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ---------- Firestore: профиль ----------
+export async function saveProfile(uid, data) {
+  await setDoc(doc(db, "users", uid), data, { merge: true });
+}
+
+export async function updateProfileFields(uid, fields) {
+  await updateDoc(doc(db, "users", uid), fields);
+}
+
+export async function getProfile(uid) {
+  const snap = await getDoc(doc(db, "users", uid));
+  return snap.exists() ? snap.data() : null;
+}
+
+// ---------- Онлайн-статус ----------
+const ONLINE_THRESHOLD_MS = 2 * 60 * 1000; // 2 минуты
+
+export async function pingOnline(uid) {
+  try {
+    await updateDoc(doc(db, "users", uid), { lastActive: Date.now() });
+  } catch (e) { /* профиль ещё может не существовать — игнорируем */ }
+}
+
+export function isOnline(profile) {
+  if (!profile?.lastActive) return false;
+  return Date.now() - profile.lastActive < ONLINE_THRESHOLD_MS;
+}
+
+export function lastSeenText(profile) {
+  if (isOnline(profile)) return "в сети";
+  if (!profile?.lastActive) return "не в сети";
+  const diffMin = Math.floor((Date.now() - profile.lastActive) / 60000);
+  if (diffMin < 60) return `был(а) ${diffMin} мин назад`;
+  const diffH = Math.floor(diffMin / 60);
+  if (diffH < 24) return `был(а) ${diffH} ч назад`;
+  return `был(а) давно`;
+}
+
+// ---------- Рендер выбора фона ----------
+export function renderBgPicker(container, selected, onSelect) {
+  container.innerHTML = "";
+  ALL_BACKGROUNDS.forEach((bg) => {
+    const el = document.createElement("div");
+    el.className = "bg-swatch" + (bg === selected ? " selected" : "");
+    el.style.background = bg;
+    el.title = bg.startsWith("#") ? "Цвет" : "Градиент";
+    el.addEventListener("click", () => {
+      container.querySelectorAll(".bg-swatch").forEach((s) => s.classList.remove("selected"));
+      el.classList.add("selected");
+      onSelect(bg);
+    });
+    container.appendChild(el);
+  });
+}
+
+// ---------- Рендер выбора emoji-статуса (для профиля) ----------
+export function renderEmojiPicker(container, selectedId, onSelect) {
+  container.innerHTML = "";
+  EMOJIS.forEach((emoji) => {
+    const el = document.createElement("div");
+    el.className = "emoji-swatch" + (emoji.id === selectedId ? " selected" : "");
+    el.title = emoji.label;
+    el.innerHTML = `<img src="svg/emojis/${emoji.file}" class="emoji-svg anim-${emoji.anim}" alt="${emoji.label}">`;
+    el.addEventListener("click", () => {
+      container.querySelectorAll(".emoji-swatch").forEach((s) => s.classList.remove("selected"));
+      el.classList.add("selected");
+      onSelect(emoji.id);
+    });
+    container.appendChild(el);
+  });
+}
+
+// ---------- Рендер панели эмодзи для отправки в чат ----------
+export function renderEmojiSendPanel(container, onPick) {
+  container.innerHTML = "";
+  EMOJIS.forEach((emoji) => {
+    const el = document.createElement("div");
+    el.className = "emoji-swatch";
+    el.title = emoji.label;
+    el.innerHTML = `<img src="svg/emojis/${emoji.file}" class="emoji-svg anim-${emoji.anim}" alt="${emoji.label}">`;
+    el.addEventListener("click", () => onPick(emoji.id));
+    container.appendChild(el);
+  });
+}
