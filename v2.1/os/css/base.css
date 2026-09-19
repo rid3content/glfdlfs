@@ -1,0 +1,91 @@
+:root{
+  --bg:#0B0E14;
+  --surface:#141926;
+  --surface-2:#1B2233;
+  --surface-3:#242C40;
+  --border:#2A3245;
+  --text:#E7EAF2;
+  --muted:#8A93A9;
+  --accent:#6EE7F9;
+  --accent-2:#A78BFA;
+  --accent-warm:#FFB86B;
+  --danger:#FF6B6B;
+  --success:#63E6BE;
+  --font-display:'Space Grotesk', sans-serif;
+  --font-body:'Inter', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+
+  --radius-s:8px;
+  --radius-m:14px;
+  --radius-l:22px;
+
+  --dur-fast:120ms;
+  --dur-med:220ms;
+  --dur-slow:420ms;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+
+/* Режим "уменьшить анимации" — переключается в Настройках, добавляет класс на <body> */
+body.no-motion, body.no-motion *{
+  animation-duration:0.001ms !important;
+  animation-iteration-count:1 !important;
+  transition-duration:0.001ms !important;
+  scroll-behavior:auto !important;
+}
+body.reduced-motion{ --dur-fast:1ms; --dur-med:1ms; --dur-slow:1ms; }
+
+*{ box-sizing:border-box; }
+html,body{
+  height:100%;
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  user-select:none;
+}
+button, input, textarea{ font-family:inherit; color:inherit; }
+button{ cursor:pointer; }
+::selection{ background:var(--accent); color:#0B0E14; }
+
+.hidden{ display:none !important; }
+
+/* Скроллбар в фирменном стиле */
+::-webkit-scrollbar{ width:8px; height:8px; }
+::-webkit-scrollbar-track{ background:transparent; }
+::-webkit-scrollbar-thumb{ background:var(--surface-3); border-radius:8px; }
+::-webkit-scrollbar-thumb:hover{ background:var(--accent-2); }
+
+/* ---------- Экран загрузки ---------- */
+#boot-screen{
+  position:fixed; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:radial-gradient(circle at 50% 40%, #121826 0%, #05060A 75%);
+  z-index:9999;
+  gap:18px;
+}
+.boot-ring{
+  width:64px; height:64px;
+  border-radius:50%;
+  border:3px solid var(--surface-3);
+  border-top-color:var(--accent);
+  border-right-color:var(--accent-2);
+  animation:spin 900ms linear infinite;
+}
+.boot-label{
+  font-family:var(--font-display);
+  font-size:28px;
+  letter-spacing:2px;
+  font-weight:700;
+  color:var(--text);
+}
+.boot-label span{ color:var(--accent); font-weight:500; }
+.boot-status{
+  font-family:var(--font-mono);
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:.5px;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head><meta charset="UTF-8"><title>Знакомство с RID3</title>
+<style>
+  body{ margin:0; font-family:'Segoe UI', sans-serif; background:#12131b; color:#e7eaf2; padding:26px; line-height:1.6; }
+  h1{ font-size:20px; margin-top:0; }
+  code{ background:#1a1c28; padding:2px 6px; border-radius:5px; font-size:12px; }
+  ul{ padding-left:18px; }
+</style></head>
+<body>
+  <h1>👋 Это приложение, установленное как .rva</h1>
+  <p>Оно ничем не отличается от «настоящего» приложения — только загружается динамически.</p>
+  <ul>
+    <li>Конфигурация лежит в <code>app.rva</code></li>
+    <li>Главная страница — этот файл, <code>index.html</code></li>
+    <li>Оба файла нужно выбирать вместе при установке</li>
+    <li>Права доступа и требования к памяти видны в Настройки → Система, и редактируются через ПКМ → «Изменить конфиг» или в IDE</li>
+  </ul>
+  <p>Загляните в папку <code>apps/</code> архива, чтобы увидеть исходники всех примеров.</p>
+  <p>Системное время (право <code>time</code>): <b id="sys-time">…</b></p>
+  <script>
+    window.addEventListener('rva-ready', async () => {
+      try {
+        const t = await RVA.time.now();
+        document.getElementById('sys-time').textContent = new Date(t.timestamp).toLocaleString('ru-RU');
+      } catch (e) {
+        document.getElementById('sys-time').textContent = 'нет доступа (' + e.message + ')';
+      }
+    });
+  </script>
+</body>
+</html>

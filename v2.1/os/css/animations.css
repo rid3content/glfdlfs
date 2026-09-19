@@ -1,0 +1,52 @@
+/* ---------- Появление рабочего стола ---------- */
+#desktop{ opacity:0; transform:scale(1.01); }
+#desktop.entered{
+  opacity:1; transform:scale(1);
+  transition:opacity var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease);
+}
+
+/* ---------- Окна ---------- */
+.os-window.opening{
+  animation: win-open var(--dur-med) var(--ease) forwards;
+}
+@keyframes win-open{
+  from{ transform:scale(.96); opacity:0; }
+  to{ transform:scale(1); opacity:1; }
+}
+.os-window.closing{
+  animation:win-close var(--dur-fast) var(--ease) forwards;
+}
+@keyframes win-close{
+  from{ transform:scale(1); opacity:1; }
+  to{ transform:scale(.95); opacity:0; }
+}
+.os-window.minimizing{ animation:win-min var(--dur-med) var(--ease) forwards; }
+@keyframes win-min{
+  to{ transform:scale(.3) translateY(60vh); opacity:0; }
+}
+
+/* ---------- Стартовое меню ---------- */
+#start-menu{ transform:translateY(8px) scale(.98); opacity:0; pointer-events:none; }
+#start-menu.open{
+  transform:translateY(0) scale(1); opacity:1; pointer-events:auto;
+  transition:transform var(--dur-med) var(--ease), opacity var(--dur-med) var(--ease);
+}
+
+/* ---------- Модалки ---------- */
+.modal-box{ animation:modal-in var(--dur-med) var(--ease); }
+@keyframes modal-in{
+  from{ transform:translateY(10px) scale(.97); opacity:0; }
+  to{ transform:translateY(0) scale(1); opacity:1; }
+}
+
+/* ---------- Тосты ---------- */
+.toast{
+  animation:toast-in var(--dur-med) var(--ease);
+}
+@keyframes toast-in{
+  from{ transform:translateY(10px); opacity:0; }
+  to{ transform:translateY(0); opacity:1; }
+}
+
+/* ---------- Иконки/апп-старт нажатие ---------- */
+.desktop-icon:active, .start-app:active{ transform:scale(.96); transition:transform 80ms var(--ease); }

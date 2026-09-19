@@ -1,0 +1,12 @@
+# RID3 Registry Node (.rnn) — build-time дескриптор приложения.
+name: Заметки
+icon: svg:notes
+version: 2.0
+entry: index.html
+files: index.html, style.css
+description: Простой блокнот с сохранением в локальном хранилище.
+window.width: 420
+window.height: 460
+window.resizable: true
+permissions: storage
+resources.memory: 64

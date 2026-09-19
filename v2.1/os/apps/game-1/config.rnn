@@ -1,0 +1,11 @@
+name: Cyber Defender
+icon: svg:gamepad
+version: 1.0
+entry: index.html
+files: index.html
+description: Аркадный космический шутер с симуляцией защиты от вирусов и рекордами.
+window.width: 640
+window.height: 520
+window.resizable: true
+permissions: time, storage, notifications
+resources.memory: 64

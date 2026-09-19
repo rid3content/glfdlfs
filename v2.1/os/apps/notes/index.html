@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Заметки</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="toolbar">
+    <input id="new-note" placeholder="Новая заметка… и Enter">
+  </div>
+  <div id="list"></div>
+<script>
+  let notes = ['Это демонстрационное приложение формата .rva', 'Заметки хранятся только в памяти окна'];
+  const list = document.getElementById('list');
+  function render(){
+    list.innerHTML = '';
+    notes.forEach((n, i) => {
+      const el = document.createElement('div');
+      el.className = 'note';
+      el.innerHTML = '<span>'+n.replace(/</g,'&lt;')+'</span><button data-i="'+i+'">✕</button>';
+      list.appendChild(el);
+    });
+  }
+  list.addEventListener('click', e => {
+    const i = e.target.dataset.i;
+    if (i !== undefined) { notes.splice(+i, 1); render(); }
+  });
+  document.getElementById('new-note').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.value.trim()) {
+      notes.unshift(e.target.value.trim());
+      e.target.value = '';
+      render();
+    }
+  });
+  render();
+</script>
+</body>
+</html>

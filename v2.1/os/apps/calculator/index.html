@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Калькулятор</title>
+<style>
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:'Segoe UI', sans-serif; background:#12131b; height:100vh; display:flex; flex-direction:column; }
+  #display{ padding:22px 16px; text-align:right; color:#fff; font-size:34px; font-weight:300; background:#0c0d13; min-height:70px; word-break:break-all; }
+  #keys{ flex:1; display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:#26283a; }
+  button{ border:none; background:#1a1c28; color:#fff; font-size:18px; cursor:pointer; }
+  button:hover{ background:#262940; }
+  button.op{ background:#3a3d5c; color:#8be9fd; }
+  button.eq{ background:#6EE7F9; color:#0c0d13; font-weight:700; grid-column: span 2; }
+  button.clear{ color:#ff6b6b; }
+</style>
+</head>
+<body>
+  <div id="display">0</div>
+  <div id="keys">
+    <button class="clear" data-k="C">C</button>
+    <button data-k="(">(</button>
+    <button data-k=")">)</button>
+    <button class="op" data-k="/">÷</button>
+    <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+    <button class="op" data-k="*">×</button>
+    <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+    <button class="op" data-k="-">−</button>
+    <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+    <button class="op" data-k="+">+</button>
+    <button data-k="0">0</button><button data-k=".">.</button>
+    <button class="eq" data-k="=">=</button>
+  </div>
+<script>
+  let expr = '';
+  const display = document.getElementById('display');
+  document.getElementById('keys').addEventListener('click', e => {
+    const k = e.target.dataset.k;
+    if (!k) return;
+    if (k === 'C') { expr = ''; }
+    else if (k === '=') {
+      try { expr = String(Function('"use strict"; return (' + expr + ')')()); }
+      catch (err) { expr = 'Ошибка'; }
+    } else { expr += k; }
+    display.textContent = expr || '0';
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+
+app: RID3 Cyber Defender
+version: 1.0
+icon: 🕹️
+type: html
+entry: index.html
+files: index.html
+window.width: 640
+window.height: 520
+window.resizable: true
+permissions: time, storage, notifications
+resources.memory: 64

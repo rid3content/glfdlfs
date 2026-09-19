@@ -1,0 +1,11 @@
+name: Gpack services
+icon: svg:gamepad
+version: 1.0
+entry: index.html
+files: index.html, home.html
+description: Аркадный космический шутер с симуляцией защиты от вирусов и рекордами.
+window.width: 1000
+window.height: 950
+window.resizable: true
+permissions: time, storage, notifications
+resources.memory: 10

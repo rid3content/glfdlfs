@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-full bg-slate-950 select-none">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RID3 Terminal Shell v2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --term-bg: #090d16;
+            --term-fg: #e2e8f0;
+            --term-prompt: #38bdf8;
+            --term-border: #1e293b;
+            --term-accent: #6366f1;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: var(--term-bg);
+            color: var(--term-fg);
+        }
+
+        /* RID3 Custom Terminal Scrollbar */
+        .term-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .term-scrollbar::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        .term-scrollbar::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        .term-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+
+        /* Glowing Terminal Elements */
+        .glow-cyan {
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+        }
+        .glow-green {
+            text-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+        }
+
+        /* RID3 Theme Switching */
+        .theme-rid3 {
+            --term-bg: #090d16;
+            --term-fg: #e2e8f0;
+            --term-prompt: #38bdf8;
+            --term-border: #1e293b;
+        }
+        .theme-matrix {
+            --term-bg: #030a04;
+            --term-fg: #22c55e;
+            --term-prompt: #4ade80;
+            --term-border: #14532d;
+        }
+        .theme-cyber {
+            --term-bg: #11091c;
+            --term-fg: #f472b6;
+            --term-prompt: #a855f7;
+            --term-border: #4c1d95;
+        }
+        .theme-dark {
+            --term-bg: #0a0a0a;
+            --term-fg: #d4d4d4;
+            --term-prompt: #f59e0b;
+            --term-border: #262626;
+        }
+
+        .win-shadow {
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px var(--term-border);
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col p-2 sm:p-4 bg-slate-950 text-slate-200">
+
+    <div id="terminal-window" class="theme-rid3 w-full h-full mx-auto flex flex-col bg-[var(--term-bg)] border border-[var(--term-border)] rounded-xl win-shadow overflow-hidden transition-colors duration-300">
+        
+        <!-- RID3 OS Terminal Header Bar -->
+        <div class="bg-[#0f172a]/90 backdrop-blur px-3 py-2 border-b border-[var(--term-border)] flex items-center justify-between select-none font-sans text-xs">
+            <!-- Tabs Bar -->
+            <div class="flex items-center space-x-1 overflow-x-auto">
+                <div id="tab-main" class="flex items-center gap-2 px-3 py-1 bg-[var(--term-bg)] text-cyan-400 rounded-lg border border-[var(--term-border)] text-xs font-mono font-medium">
+                    <span class="text-indigo-400 font-bold">&gt;_</span>
+                    <span id="tab-title">RID3 Shell - HTTP Console</span>
+                </div>
+            </div>
+
+            <!-- RID3 OS Header Status Badge & Quick Controls -->
+            <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2 text-[11px] font-mono">
+                    <span id="stat-req" class="bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-slate-400">REQ: 0</span>
+                    <span id="stat-rva" class="bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-800/50 text-indigo-300 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="rva-status-text">RVA Engine</span>
+                    </span>
+                </div>
+                <button onclick="clearConsole()" class="px-2 py-1 hover:bg-red-500/20 hover:text-red-400 text-slate-400 rounded transition" title="Очистить экран (CLS)">✕</button>
+            </div>
+        </div>
+
+        <!-- Quick Commands Presets Toolbar -->
+        <div class="bg-slate-900/50 border-b border-[var(--term-border)] px-3 py-1.5 flex flex-wrap gap-1.5 text-xs font-mono items-center">
+            <span class="text-slate-500 text-[11px] mr-1 select-none">Команды:</span>
+            <button onclick="executeQuick('help')" class="px-2 py-0.5 bg-slate-800/80 hover:bg-slate-700 text-cyan-400 rounded border border-slate-700/60 transition">help</button>
+            <button onclick="executeQuick('colortest')" class="px-2 py-0.5 bg-slate-800/80 hover:bg-slate-700 text-purple-400 rounded border border-slate-700/60 transition">colortest</button>
+            <button onclick="executeQuick('ping https://httpbin.org/get')" class="px-2 py-0.5 bg-slate-800/80 hover:bg-slate-700 text-emerald-400 rounded border border-slate-700/60 transition">ping httpbin</button>
+            <button onclick="executeQuick('get https://jsonplaceholder.typicode.com/todos/1')" class="px-2 py-0.5 bg-slate-800/80 hover:bg-slate-700 text-amber-400 rounded border border-slate-700/60 transition">get sample</button>
+            <button onclick="executeQuick('post https://httpbin.org/post {\&quot;app\&quot;:\&quot;RID3\&quot;}')" class="px-2 py-0.5 bg-slate-800/80 hover:bg-slate-700 text-blue-400 rounded border border-slate-700/60 transition">post data</button>
+            <button onclick="executeQuick('dns google.com')" class="px-2 py-0.5 bg-slate-800/80 hover:bg-slate-700 text-teal-400 rounded border border-slate-700/60 transition">dns lookup</button>
+            <button onclick="executeQuick('myip')" class="px-2 py-0.5 bg-slate-800/80 hover:bg-slate-700 text-pink-400 rounded border border-slate-700/60 transition">myip</button>
+            <button onclick="executeQuick('sysinfo')" class="px-2 py-0.5 bg-slate-800/80 hover:bg-slate-700 text-indigo-400 rounded border border-slate-700/60 transition">sysinfo</button>
+            <button onclick="executeQuick('theme rid3')" class="px-2 py-0.5 bg-slate-800/80 hover:bg-slate-700 text-yellow-400 rounded border border-slate-700/60 transition">theme</button>
+            <button onclick="executeQuick('cls')" class="px-2 py-0.5 bg-red-950/40 hover:bg-red-900/60 text-red-400 rounded border border-red-800/40 transition ml-auto">cls</button>
+        </div>
+
+        <!-- Terminal Output Output Screen Area -->
+        <div id="console-output" class="flex-1 p-4 overflow-y-auto term-scrollbar font-mono text-sm leading-relaxed space-y-1 bg-[var(--term-bg)] selection:bg-slate-800 selection:text-cyan-200">
+            <!-- Output Lines appended dynamically via JS -->
+        </div>
+
+        <!-- Command Input Form (RID3 Prompt style) -->
+        <form id="console-form" onsubmit="handleCommandSubmit(event)" class="bg-[var(--term-bg)] p-3 border-t border-[var(--term-border)] flex items-center gap-2 font-mono">
+            <div id="prompt-label" class="flex items-center text-[var(--term-prompt)] font-semibold select-none whitespace-nowrap glow-cyan">
+                <span id="prompt-text">rid3@os:~$</span>
+            </div>
+            <div class="relative flex-1 flex items-center">
+                <input 
+                    type="text" 
+                    id="console-input" 
+                    class="w-full bg-transparent text-[var(--term-fg)] placeholder-slate-600 focus:outline-none font-mono text-sm border-none ring-0 p-0" 
+                    placeholder="Введите команду... (например: help, ping, get, post, dns, colortest)" 
+                    autocomplete="off" 
+                    spellcheck="false"
+                    autofocus
+                />
+            </div>
+            <button type="submit" class="px-3 py-1 bg-indigo-600/80 hover:bg-indigo-600 text-xs text-white rounded border border-indigo-500/50 transition">
+                Enter ↵
+            </button>
+        </form>
+    </div>
+
+    <script>
+        /**
+         * RID3 OS Color Palette Mapping (&0 through &10 + Aliases)
+         * Matches custom console palette specification.
+         */
+        const RID3_COLORS = {
+            '&0': '#090D16',  // Black / Deep Dark
+            '&1': '#1D4ED8',  // Blue
+            '&2': '#15803D',  // Green
+            '&3': '#099268',  // Cyan / Teal
+            '&4': '#DC2626',  // Red
+            '&5': '#9333EA',  // Purple
+            '&6': '#D97706',  // Amber / Gold
+            '&7': '#94A3B8',  // Light Gray
+            '&8': '#475569',  // Dark Gray
+            '&9': '#3B82F6',  // Bright Blue
+            '&10': '#22C55E', // Bright Lime Green (Alias &a)
+            '&a': '#22C55E',  // Bright Lime
+            '&b': '#38BDF8',  // Bright Cyan
+            '&c': '#EF4444',  // Bright Red
+            '&d': '#F472B6',  // Pink
+            '&e': '#FDE047',  // Bright Yellow
+            '&f': '#F8FAFC',  // White
+            '&r': 'RESET'     // Reset styling
+        };
+
+        const COMMAND_LIST = [
+            'help', 'colortest', 'ping', 'get', 'post', 'put', 'delete', 'fetch',
+            'status', 'headers', 'cors', 'dns', 'myip', 'echo', 'cls', 'clear',
+            'sysinfo', 'ver', 'title', 'theme', 'prompt', 'history'
+        ];
+
+        let requestCounter = 0;
+        let commandHistory = [];
+        let historyIndex = -1;
+        let currentPrompt = "rid3@os:~$";
+        let rvaPermissions = [];
+        let isRVA = false;
+
+        /**
+         * STREAMING_CHUNK: Helper functions and Color Code Parser...
+         */
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        /**
+         * Parses &0-&10 color codes into HTML styled spans
+         */
+        function parseColorCodes(text) {
+            if (!text) return '';
+
+            const regex = /&(10|[0-9a-frA-FR])/g;
+            let output = '';
+            let lastIndex = 0;
+            let openSpans = 0;
+
+            let match;
+            while ((match = regex.exec(text)) !== null) {
+                output += escapeHtml(text.substring(lastIndex, match.index));
+                
+                const code = match[0].toLowerCase();
+                if (code === '&r') {
+                    while (openSpans > 0) {
+                        output += '</span>';
+                        openSpans--;
+                    }
+                } else if (RID3_COLORS[code]) {
+                    if (openSpans > 0) {
+                        output += '</span>';
+                        openSpans--;
+                    }
+                    output += `<span style="color: ${RID3_COLORS[code]}; font-weight: 500;">`;
+                    openSpans++;
+                } else {
+                    output += escapeHtml(match[0]);
+                }
+                lastIndex = regex.lastIndex;
+            }
+
+            output += escapeHtml(text.substring(lastIndex));
+
+            while (openSpans > 0) {
+                output += '</span>';
+                openSpans--;
+            }
+
+            return output;
+        }
+
+        /**
+         * Outputs line to console screen
+         */
+        function printToConsole(text, mode = 'normal') {
+            const consoleOutput = document.getElementById('console-output');
+            const line = document.createElement('div');
+            line.className = 'break-all whitespace-pre-wrap leading-tight font-mono';
+
+            if (mode === 'cmd') {
+                line.innerHTML = `<span class="text-slate-500 select-none">${escapeHtml(currentPrompt)}</span> <span class="text-white font-medium">${escapeHtml(text)}</span>`;
+            } else if (mode === 'error') {
+                line.innerHTML = parseColorCodes(`&4[ОШИБКА]&r ${text}`);
+            } else if (mode === 'success') {
+                line.innerHTML = parseColorCodes(`&10[УСПЕХ]&r ${text}`);
+            } else if (mode === 'info') {
+                line.innerHTML = parseColorCodes(`&9[ИНФО]&r ${text}`);
+            } else {
+                line.innerHTML = parseColorCodes(text);
+            }
+
+            consoleOutput.appendChild(line);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        function incrementRequests() {
+            requestCounter++;
+            document.getElementById('stat-req').textContent = `REQ: ${requestCounter}`;
+        }
+
+        function normalizeUrl(url) {
+            if (!url) return null;
+            if (!/^https?:\/\//i.test(url)) {
+                return 'https://' + url;
+            }
+            return url;
+        }
+
+        /**
+         * STREAMING_CHUNK: Processing Network Commands and RID3 OS Bridge...
+         */
+        async function checkNetworkPermission() {
+            if (isRVA && typeof window.RVA !== 'undefined' && window.RVA.net) {
+                return true;
+            }
+            return true; // Fallback to standard fetch
+        }
+
+        async function processCommand(rawInput) {
+            const trimmed = rawInput.trim();
+            if (!trimmed) return;
+
+            // Batch execution via &&
+            if (trimmed.includes('&&')) {
+                const subCommands = trimmed.split('&&');
+                for (let sub of subCommands) {
+                    await processCommand(sub.trim());
+                }
+                return;
+            }
+
+            printToConsole(trimmed, 'cmd');
+
+            commandHistory.push(trimmed);
+            historyIndex = commandHistory.length;
+
+            const matches = trimmed.match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+            const command = matches[0].toLowerCase();
+            const args = matches.slice(1).map(arg => arg.replace(/^"|"$/g, ''));
+
+            switch (command) {
+                case 'help':
+                case '?':
+                    cmdHelp(args[0]);
+                    break;
+
+                case 'colortest':
+                case 'colors':
+                    cmdColorTest();
+                    break;
+
+                case 'cls':
+                case 'clear':
+                    clearConsole();
+                    break;
+
+                case 'echo':
+                    printToConsole(args.join(' '));
+                    break;
+
+                case 'ping':
+                    await cmdPing(args[0]);
+                    break;
+
+                case 'get':
+                case 'fetch':
+                    await cmdGet(args[0], args[1]);
+                    break;
+
+                case 'post':
+                    await cmdPost(args[0], args[1], args[2]);
+                    break;
+
+                case 'put':
+                    await cmdPut(args[0], args[1]);
+                    break;
+
+                case 'delete':
+                    await cmdDelete(args[0]);
+                    break;
+
+                case 'status':
+                case 'check':
+                    await cmdStatus(args[0]);
+                    break;
+
+                case 'headers':
+                    await cmdHeaders(args[0]);
+                    break;
+
+                case 'cors':
+                    await cmdCorsCheck(args[0]);
+                    break;
+
+                case 'dns':
+                case 'nslookup':
+                    await cmdNslookup(args[0]);
+                    break;
+
+                case 'myip':
+                    await cmdMyIp();
+                    break;
+
+                case 'sysinfo':
+                case 'ver':
+                    cmdSysInfo();
+                    break;
+
+                case 'title':
+                    if (args[0]) {
+                        document.getElementById('tab-title').textContent = args.join(' ');
+                        printToConsole(`&10Заголовок изменен на:&r ${escapeHtml(args.join(' '))}`);
+                    } else {
+                        printToConsole("Использование: &6title <заголовок>&r");
+                    }
+                    break;
+
+                case 'theme':
+                    cmdTheme(args[0]);
+                    break;
+
+                case 'prompt':
+                    if (args[0]) {
+                        currentPrompt = args.join(' ');
+                        document.getElementById('prompt-text').textContent = currentPrompt;
+                        printToConsole(`&10Приглашение изменено на:&r ${escapeHtml(currentPrompt)}`);
+                    } else {
+                        printToConsole("Использование: &6prompt <текст>&r (Пример: prompt user@rid3:~$)");
+                    }
+                    break;
+
+                case 'history':
+                    cmdHistory();
+                    break;
+
+                default:
+                    printToConsole(`&4Команда "${escapeHtml(command)}" не найдена.&r Введите &6help&r для списка команд.`, 'normal');
+                    break;
+            }
+        }
+
+        /**
+         * STREAMING_CHUNK: Implementing Shell Commands (help, colortest, ping, HTTP methods)...
+         */
+        function cmdHelp(topic) {
+            if (topic) {
+                const t = topic.toLowerCase();
+                if (t === 'ping') printToConsole("&6ping <url>&r - Отправляет HEAD/HTTP запрос и измеряет RTT отклик.");
+                else if (t === 'get') printToConsole("&6get <url> [headers_json]&r - HTTP GET запрос с форматированием JSON/HTML.");
+                else if (t === 'post') printToConsole('&6post <url> [body_json] [content_type]&r - HTTP POST запрос.');
+                else if (t === 'status') printToConsole("&6status <url>&r - Проверка HTTP статус-кода ответа от сервера.");
+                else if (t === 'headers') printToConsole("&6headers <url>&r - Просмотр HTTP заголовков ответа.");
+                else if (t === 'dns') printToConsole("&6dns <domain>&r - Запрос DNS через Cloudflare DoH API.");
+                else if (t === 'theme') printToConsole("&6theme <rid3|matrix|cyber|dark>&r - Смена темы оформления.");
+                else printToConsole(`&7Информация по теме &6${escapeHtml(topic)}&7 не найдена.&r`);
+                return;
+            }
+
+            printToConsole("&3============================================================&r");
+            printToConsole("&10  RID3 OS TERMINAL SHELL - СПИСОК КОМАНД  &r");
+            printToConsole("&3============================================================&r");
+            printToConsole("&6Сетевые и HTTP команды:&r");
+            printToConsole("  &10ping <url>&r             - Проверить отклик узла");
+            printToConsole("  &10get <url>&r              - Выполнить HTTP GET запрос");
+            printToConsole("  &10post <url> [body]&r      - Выполнить HTTP POST запрос");
+            printToConsole("  &10put <url> [body]&r       - Выполнить HTTP PUT запрос");
+            printToConsole("  &10delete <url>&r           - Выполнить HTTP DELETE запрос");
+            printToConsole("  &10status <url>&r          - Проверить код статуса (200, 404, 500)");
+            printToConsole("  &10headers <url>&r         - Посмотреть заголовки сервера");
+            printToConsole("  &10cors <url>&r            - Проверить правила CORS в браузере");
+            printToConsole("  &10dns <domain>&r          - Выполнить DoH DNS-запрос");
+            printToConsole("  &10myip&r                  - Узнать текущий внешний IP адрес");
+            printToConsole("");
+            printToConsole("&6Команды консоли RID3 OS:&r");
+            printToConsole("  &10colortest&r            - Палитра цветов &0-&10 и &a-&f");
+            printToConsole("  &10echo <текст>&r          - Вывести текст с цветами &0-&10");
+            printToConsole("  &10cls / clear&r           - Очистить консоль");
+            printToConsole("  &10sysinfo&r               - Информация о системе RID3 OS");
+            printToConsole("  &10theme <название>&r      - Переключить тему (rid3, matrix, cyber, dark)");
+            printToConsole("  &10prompt <текст>&r        - Сменить текст приглашения");
+            printToConsole("  &10history&r               - История введенных команд");
+            printToConsole("");
+            printToConsole("&7Цепочки команд поддерживают оператор &6&&&7 (например: &6ping site.com && get site.com&7)&r");
+        }
+
+        function cmdColorTest() {
+            printToConsole("&3=== ЦВЕТОВАЯ ПАЛИТРА RID3 OS (&0 - &10) ===&r");
+            printToConsole("&0&0 - Черный / Midnight (#090D16)&r");
+            printToConsole("&1&1 - Синий (#1D4ED8)&r");
+            printToConsole("&2&2 - Зеленый (#15803D)&r");
+            printToConsole("&3&3 - Морская волна / Бирюзовый (#099268)&r");
+            printToConsole("&4&4 - Красный (#DC2626)&r");
+            printToConsole("&5&5 - Пурпурный (#9333EA)&r");
+            printToConsole("&6&6 - Золотой / Оранжевый (#D97706)&r");
+            printToConsole("&7&7 - Светло-серый (#94A3B8)&r");
+            printToConsole("&8&8 - Темно-серый (#475569)&r");
+            printToConsole("&9&9 - Ярко-синий (#3B82F6)&r");
+            printToConsole("&10&10 - Ярко-зеленый / Лайм (#22C55E)&r");
+            printToConsole("&a&a - Лайм&r | &b&b - Голубой&r | &c&c - Красный&r | &d&d - Розовый&r | &e&e - Желтый&r | &f&f - Белый&r");
+            printToConsole("&6Пример formatting:&r &4[ВНИМАНИЕ]&r &10Процесс&r &9RVA.net&r &6завершен успешно!&r");
+        }
+
+        async function cmdPing(rawUrl) {
+            const url = normalizeUrl(rawUrl);
+            if (!url) {
+                printToConsole("Укажите URL. Пример: &6ping https://httpbin.org/get&r", 'error');
+                return;
+            }
+
+            printToConsole(`Пинг &6${escapeHtml(url)}&r:`);
+
+            for (let i = 1; i <= 4; i++) {
+                const start = performance.now();
+                try {
+                    await fetch(url, { method: 'HEAD', mode: 'no-cors', cache: 'no-cache' });
+                    const elapsed = (performance.now() - start).toFixed(1);
+                    printToConsole(`Ответ от &6${escapeHtml(url)}&r: время=&10${elapsed}мс&r`);
+                    incrementRequests();
+                } catch (err) {
+                    const elapsed = (performance.now() - start).toFixed(1);
+                    printToConsole(`Превышен интервал ожидания запроса &8[${i}]&r (${elapsed}мс).`);
+                }
+                await new Promise(r => setTimeout(r, 150));
+            }
+        }
+
+        async function cmdGet(rawUrl, headersJson) {
+            const url = normalizeUrl(rawUrl);
+            if (!url) {
+                printToConsole("Укажите URL. Пример: &6get https://jsonplaceholder.typicode.com/todos/1&r", 'error');
+                return;
+            }
+
+            printToConsole(`&9[GET]&r Отправка запроса к &6${escapeHtml(url)}&r...`);
+            const start = performance.now();
+
+            try {
+                let customHeaders = {};
+                if (headersJson) {
+                    try { customHeaders = JSON.parse(headersJson); } catch(e){}
+                }
+
+                const response = await fetch(url, { headers: customHeaders });
+                const elapsed = (performance.now() - start).toFixed(1);
+                incrementRequests();
+
+                const code = response.status;
+                const codeColor = response.ok ? '&10' : '&4';
+                printToConsole(`Статус: ${codeColor}${code} ${response.statusText}&r | Время: &6${elapsed} мс&r`);
+
+                const contentType = response.headers.get('content-type') || '';
+                let content = '';
+
+                if (contentType.includes('application/json')) {
+                    const jsonData = await response.json();
+                    content = JSON.stringify(jsonData, null, 2);
+                } else {
+                    content = await response.text();
+                    if (content.length > 2000) {
+                        content = content.substring(0, 2000) + '\n... [текст обрезан]';
+                    }
+                }
+
+                printToConsole(`&3--- ТЕЛО ОТВЕТА ---&r\n${escapeHtml(content)}\n&3-------------------&r`);
+            } catch (err) {
+                printToConsole(`&4Ошибка выполнения GET запроса:&r ${escapeHtml(err.message)}`, 'error');
+            }
+        }
+
+        async function cmdPost(rawUrl, bodyData, contentType) {
+            const url = normalizeUrl(rawUrl);
+            if (!url) {
+                printToConsole('Укажите URL. Пример: &6post https://httpbin.org/post "{\\"key\\":\\"value\\"}"&r', 'error');
+                return;
+            }
+
+            printToConsole(`&9[POST]&r Отправка данных на &6${escapeHtml(url)}&r...`);
+            const start = performance.now();
+
+            try {
+                const payload = bodyData || '{}';
+                const headers = { 'Content-Type': contentType || 'application/json' };
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: headers,
+                    body: payload
+                });
+
+                const elapsed = (performance.now() - start).toFixed(1);
+                incrementRequests();
+
+                const codeColor = response.ok ? '&10' : '&4';
+                printToConsole(`Статус: ${codeColor}${response.status} ${response.statusText}&r | Время: &6${elapsed} мс&r`);
+
+                const text = await response.text();
+                let formatted = text;
+                try {
+                    formatted = JSON.stringify(JSON.parse(text), null, 2);
+                } catch (e) {}
+
+                printToConsole(`&3--- ОТВЕТ СЕРВЕРА ---&r\n${escapeHtml(formatted.substring(0, 1500))}\n&3---------------------&r`);
+            } catch (err) {
+                printToConsole(`&4Ошибка POST запроса:&r ${escapeHtml(err.message)}`, 'error');
+            }
+        }
+
+        async function cmdPut(rawUrl, bodyData) {
+            const url = normalizeUrl(rawUrl);
+            if (!url) {
+                printToConsole("Укажите URL.", 'error');
+                return;
+            }
+            printToConsole(`&9[PUT]&r Отправка ресурсов на &6${escapeHtml(url)}&r...`);
+            try {
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: bodyData || '{}'
+                });
+                incrementRequests();
+                printToConsole(`Статус: ${response.ok ? '&10' : '&4'}${response.status} ${response.statusText}&r`);
+            } catch (err) {
+                printToConsole(`&4Ошибка PUT:&r ${escapeHtml(err.message)}`, 'error');
+            }
+        }
+
+        async function cmdDelete(rawUrl) {
+            const url = normalizeUrl(rawUrl);
+            if (!url) {
+                printToConsole("Укажите URL.", 'error');
+                return;
+            }
+            printToConsole(`&9[DELETE]&r Удаление объекта по адресу &6${escapeHtml(url)}&r...`);
+            try {
+                const response = await fetch(url, { method: 'DELETE' });
+                incrementRequests();
+                printToConsole(`Результат: ${response.ok ? '&10' : '&4'}${response.status} ${response.statusText}&r`);
+            } catch (err) {
+                printToConsole(`&4Ошибка DELETE:&r ${escapeHtml(err.message)}`, 'error');
+            }
+        }
+
+        async function cmdStatus(rawUrl) {
+            const url = normalizeUrl(rawUrl);
+            if (!url) {
+                printToConsole("Укажите URL. Пример: &6status https://httpbin.org/status/200&r", 'error');
+                return;
+            }
+
+            printToConsole(`&9[STATUS CHECK]&r Проверка соединения с &6${escapeHtml(url)}&r...`);
+            const start = performance.now();
+
+            try {
+                const response = await fetch(url);
+                const elapsed = (performance.now() - start).toFixed(1);
+                incrementRequests();
+
+                const code = response.status;
+                let codeColor = '&10';
+                if (code >= 300 && code < 400) codeColor = '&6';
+                if (code >= 400) codeColor = '&4';
+
+                printToConsole(`Код ответа: ${codeColor}${code} (${response.statusText || 'OK'})&r`);
+                printToConsole(`Время: &6${elapsed} мс&r`);
+                printToConsole(`Redirected: &b${response.redirected ? 'Да' : 'Нет'}&r`);
+            } catch (err) {
+                printToConsole(`&4Ошибка соединения:&r ${escapeHtml(err.message)}`, 'error');
+            }
+        }
+
+        async function cmdHeaders(rawUrl) {
+            const url = normalizeUrl(rawUrl);
+            if (!url) {
+                printToConsole("Укажите URL.", 'error');
+                return;
+            }
+
+            printToConsole(`&9[HEADERS]&r Чтение заголовков ответа &6${escapeHtml(url)}&r...`);
+
+            try {
+                const response = await fetch(url);
+                incrementRequests();
+
+                printToConsole("&3=== HTTP RESPONSE HEADERS ===&r");
+                let count = 0;
+                for (let [key, value] of response.headers.entries()) {
+                    printToConsole(`&9${escapeHtml(key)}&r: &7${escapeHtml(value)}&r`);
+                    count++;
+                }
+                if (count === 0) printToConsole("&eЗаголовки скрыты политикой CORS.&r");
+            } catch (err) {
+                printToConsole(`&4Ошибка заголовков:&r ${escapeHtml(err.message)}`, 'error');
+            }
+        }
+
+        async function cmdCorsCheck(rawUrl) {
+            const url = normalizeUrl(rawUrl);
+            if (!url) return;
+            printToConsole(`&9[CORS TEST]&r Проверка CORS &6${escapeHtml(url)}&r...`);
+            try {
+                const res = await fetch(url, { method: 'OPTIONS' });
+                incrementRequests();
+                const allowOrigin = res.headers.get('access-control-allow-origin');
+                if (allowOrigin) {
+                    printToConsole(`&10CORS разрешен!&r Origin: &6${escapeHtml(allowOrigin)}&r`);
+                } else {
+                    printToConsole(`&6Access-Control-Allow-Origin не найден в ответе OPTIONS.&r`);
+                }
+            } catch (err) {
+                printToConsole(`&4CORS ограничен:&r ${escapeHtml(err.message)}`, 'error');
+            }
+        }
+
+        async function cmdNslookup(domain) {
+            if (!domain) {
+                printToConsole("Укажите домен. Пример: &6dns google.com&r", 'error');
+                return;
+            }
+
+            const cleanDomain = domain.replace(/^https?:\/\//i, '').split('/')[0];
+            printToConsole(`&9[DNS LOOKUP]&r DNS запросы для &6${escapeHtml(cleanDomain)}&r عبر DoH...`);
+
+            try {
+                const res = await fetch(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(cleanDomain)}&type=A`, {
+                    headers: { 'Accept': 'application/dns-json' }
+                });
+                const data = await res.json();
+                incrementRequests();
+
+                if (data.Answer && data.Answer.length > 0) {
+                    printToConsole(`Сервер DoH: cloudflare-dns.com (1.1.1.1)`);
+                    data.Answer.forEach(ans => {
+                        printToConsole(`  Address: &10${escapeHtml(ans.data)}&r (TTL: ${ans.TTL}s)`);
+                    });
+                } else {
+                    printToConsole(`&6DNS записи не найдены.&r`);
+                }
+            } catch (err) {
+                printToConsole(`&4Ошибка DNS:&r ${escapeHtml(err.message)}`, 'error');
+            }
+        }
+
+        async function cmdMyIp() {
+            printToConsole(`&9[MY IP]&r Запрос информации о текущем IP...`);
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                incrementRequests();
+
+                printToConsole("&3=== ИНФОРМАЦИЯ О ТЕКУЩЕМ IP ===&r");
+                printToConsole(`IP Адрес:     &10${data.ip || 'Н/Д'}&r`);
+                printToConsole(`Провайдер:    &6${data.org || 'Н/Д'}&r`);
+                printToConsole(`Локация:      &b${data.city || ''}, ${data.country_name || ''}&r`);
+            } catch (err) {
+                printToConsole(`&4Ошибка IP:&r ${escapeHtml(err.message)}`, 'error');
+            }
+        }
+
+        function cmdSysInfo() {
+            printToConsole("&3============================================================&r");
+            printToConsole("&10Система:            RID3 OS v2 Web Architecture&r");
+            printToConsole("&10Формат пакета:     .rva Application Package&r");
+            printToConsole(`&10Среда исполнения:   ${isRVA ? 'RVA Sandbox iFrame' : 'Standalone Web'}&r`);
+            printToConsole(`&10Разрешения (Perm): ${rvaPermissions.length ? rvaPermissions.join(', ') : 'стандартные браузерные'}&r`);
+            printToConsole(`&10Платформа:         ${navigator.platform}&r`);
+            printToConsole("&3============================================================&r");
+        }
+
+        function cmdTheme(themeName) {
+            const win = document.getElementById('terminal-window');
+            if (!themeName) {
+                printToConsole("Доступные темы: &6rid3&r, &6matrix&r, &6cyber&r, &6dark&r");
+                return;
+            }
+
+            const t = themeName.toLowerCase();
+            if (['rid3', 'matrix', 'cyber', 'dark'].includes(t)) {
+                win.className = `theme-${t} w-full h-full mx-auto flex flex-col bg-[var(--term-bg)] border border-[var(--term-border)] rounded-xl win-shadow overflow-hidden transition-colors duration-300`;
+                if (t === 'matrix') currentPrompt = "neo@matrix:~$";
+                else if (t === 'cyber') currentPrompt = "cyber@rid3:~#";
+                else if (t === 'dark') currentPrompt = "dark@console:~$";
+                else currentPrompt = "rid3@os:~$";
+
+                document.getElementById('prompt-text').textContent = currentPrompt;
+                printToConsole(`&10Тема переключена на:&r &6${t}&r`);
+            } else {
+                printToConsole(`&4Неизвестная тема "${escapeHtml(themeName)}".&r`);
+            }
+        }
+
+        function cmdHistory() {
+            if (commandHistory.length === 0) {
+                printToConsole("&7История команд пуста.&r");
+                return;
+            }
+            printToConsole("&3=== ИСТОРИЯ КОМАНД ===&r");
+            commandHistory.forEach((cmd, idx) => {
+                printToConsole(`&8[${idx + 1}]&r &f${escapeHtml(cmd)}&r`);
+            });
+        }
+
+        function clearConsole() {
+            document.getElementById('console-output').innerHTML = '';
+        }
+
+        function handleCommandSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('console-input');
+            const val = input.value;
+            input.value = '';
+            processCommand(val);
+        }
+
+        function executeQuick(cmdText) {
+            document.getElementById('console-input').value = cmdText;
+            processCommand(cmdText);
+        }
+
+        /**
+         * STREAMING_CHUNK: Setting up RID3 OS Event Bridge Listener & Keyboard Handlers...
+         */
+        window.addEventListener('rva-ready', (e) => {
+            isRVA = true;
+            if (e.detail && e.detail.permissions) {
+                rvaPermissions = e.detail.permissions;
+            }
+            document.getElementById('rva-status-text').textContent = 'RVA Active';
+            printToConsole("&10[RID3 OS Bridge]&r Связь с RVA API успешно установлена.");
+        });
+
+        // Key bindings for command history & tab auto-complete
+        document.getElementById('console-input').addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (commandHistory.length > 0 && historyIndex > 0) {
+                    historyIndex--;
+                    this.value = commandHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    this.value = commandHistory[historyIndex];
+                } else {
+                    historyIndex = commandHistory.length;
+                    this.value = '';
+                }
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                const val = this.value.trim();
+                if (!val) return;
+                const match = COMMAND_LIST.find(c => c.startsWith(val.toLowerCase()));
+                if (match) {
+                    this.value = match + ' ';
+                }
+            }
+        });
+
+        // Startup Greeting
+        window.onload = function() {
+            printToConsole("RID3 OS Terminal Environment [v2.0 Shell Core]");
+            printToConsole("Модуль сетевой консоли и HTTP-тестирования v2.0\n");
+            printToConsole("&10Добро пожаловать в RID3 Web Console!&r");
+            printToConsole("&7Поддерживается цветовое форматирование через коды &0-&10.&r");
+            printToConsole("Введите &6help&r для списка всех команд или &6colortest&r для проверки палитры.\n");
+        };
+    </script>
+</body>
+</html>

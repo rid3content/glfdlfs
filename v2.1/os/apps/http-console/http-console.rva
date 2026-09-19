@@ -1,0 +1,12 @@
+# RVA App Config v2
+app: HTTP console
+version: 1.0
+icon: svg:terminal
+type: html
+entry: index.html
+files: index.html
+window.width: 520
+window.height: 400
+window.resizable: true
+permissions: time, filesystem, storage, clipboard, notifications, device_info, apps_list, network
+resources.memory: 64

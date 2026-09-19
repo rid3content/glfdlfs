@@ -1,0 +1,12 @@
+
+app: app svg icons
+version: 1.0
+icon: svg:link
+type: html
+entry: index.html
+files: index.html
+window.width: 520
+window.height: 400
+window.resizable: true
+permissions: 
+resources.memory: 64

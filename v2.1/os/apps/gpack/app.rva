@@ -1,0 +1,12 @@
+
+app: Gpack services app
+version: 1.11121
+icon: svg:cloud
+type: html
+entry: index.html
+files: index.html, hpme.html
+window.width: 1000
+window.height: 950
+window.resizable: true
+permissions: time, storage, notifications
+resources.memory: 10

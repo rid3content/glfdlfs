@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>gpack gPST — генератор конфигурационных файлов</title>
+<meta name="description" content="gPST (program-specific tools) — рабочий инструмент gpack для генерации конфигов PostgreSQL, Redis, Nginx, Docker, YAML и JSON с экспортом и ИИ-подсказками." />
+<meta name="theme-color" content="#0b0e14" />
+<meta name="robots" content="noindex, follow" />
+<meta name="keywords" content="генератор конфигов, config generator, postgresql config, redis config, nginx config, docker compose generator, yaml генератор, json генератор, gpack, gPST, program specific tools, конфигурационные файлы онлайн" />
+
+<link rel="icon" type="image/png" href="data/img/logo.png" />
+<link rel="apple-touch-icon" href="data/img/logo.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="data/style/style.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Название Вашей Компании",
+  "url": "https://vash-sayt.com",
+  "logo": "https://vash-sayt.com/logo.png",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+998885880181",
+    "contactType": "customer service"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- Спрайт иконок -->
+<svg class="visually-hidden" aria-hidden="true">
+  <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="icon-terminal" viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M7 9l3 3-3 3M12 15h5"/></symbol>
+  <symbol id="icon-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></symbol>
+  <symbol id="icon-layers" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></symbol>
+  <symbol id="icon-server" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="14" width="18" height="7" rx="1.5"/><path d="M7 7.5h.01M7 17.5h.01"/></symbol>
+  <symbol id="icon-box" viewBox="0 0 24 24"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v9l9 5 9-5V8"/><path d="M12 13v9"/></symbol>
+  <symbol id="icon-code" viewBox="0 0 24 24"><path d="m9 18-6-6 6-6M15 6l6 6-6 6"/></symbol>
+  <symbol id="icon-braces" viewBox="0 0 24 24"><path d="M8 3c-2 0-3 1-3 3v4c0 1-.5 2-2 2 1.5 0 2 1 2 2v4c0 2 1 3 3 3"/><path d="M16 3c2 0 3 1 3 3v4c0 1 .5 2 2 2-1.5 0-2 1-2 2v4c0 2-1 3-3 3"/></symbol>
+  <symbol id="icon-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></symbol>
+  <symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></symbol>
+  <symbol id="icon-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="icon-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="icon-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></symbol>
+  <symbol id="icon-file" viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6Z"/><path d="M15 2v5h5"/></symbol>
+  <symbol id="icon-sync" viewBox="0 0 24 24"><path d="M4 4v6h6"/><path d="M20 20v-6h-6"/><path d="M20 9A8 8 0 0 0 6.3 5.3M4 15a8 8 0 0 0 13.7 3.7"/></symbol>
+</svg>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="index.html">
+      <img class="brand__logo" src="data/img/logo.png" alt="Логотип gpack" width="34" height="34" />
+      <span class="brand__name">gpack</span>
+      <span class="brand__tag">gPST</span>
+    </a>
+    <a class="nav-cta" href="index.html">
+      <svg class="icon"><use href="#icon-arrow-right" style="transform: rotate(180deg)"></use></svg>
+      <span>На главную</span>
+    </a>
+  </div>
+</header>
+
+<main class="workspace">
+  <div class="container">
+    <div class="workspace__header">
+      <h1 class="workspace__title">gPST — program-specific tools</h1>
+      <p class="workspace__subtitle">
+        Выберите технологию, заполните параметры и получите готовый
+        конфигурационный файл с правильным расширением.
+      </p>
+    </div>
+
+    <div class="workspace__grid">
+      <!-- Левая колонка: выбор технологии + форма -->
+      <section class="panel">
+        <div class="panel__head">
+          <svg class="icon"><use href="#icon-terminal"></use></svg>
+          <span>Параметры конфига</span>
+        </div>
+        <div class="panel__body">
+
+          <div class="tech-select" id="techGrid" role="radiogroup" aria-label="Технология"></div>
+
+          <form id="dynamicForm" novalidate></form>
+          <p class="form-empty" id="formEmpty" hidden>Выберите технологию, чтобы увидеть поля.</p>
+
+          <div class="generate-bar">
+            <button type="button" class="btn btn--primary btn--full" id="generateBtn">
+              <svg class="icon"><use href="#icon-code"></use></svg>
+              Сгенерировать конфиг
+            </button>
+          </div>
+        </div>
+
+        <!-- Блок ИИ-помощника: скрыт, пока ai_enabled=false в БД -->
+        <div class="panel ai-panel" id="aiPanel" hidden>
+          <div class="panel__head">
+            <svg class="icon"><use href="#icon-cpu"></use></svg>
+            <span>ИИ-помощник</span>
+            <span class="ai-panel__status"><span class="dot"></span><span id="aiStatus">Проверка...</span></span>
+          </div>
+          <div class="panel__body">
+            <p class="ai-panel__desc">
+              Подсказки на основе накопленной базы прошлых конфигов. Нажмите
+              «Применить», чтобы подставить значение в поле формы.
+            </p>
+            <div id="aiList"></div>
+          </div>
+        </div>
+
+        <!-- Лог отправки в БД -->
+        <div class="panel sync-log">
+          <div class="panel__head">
+            <svg class="icon"><use href="#icon-sync"></use></svg>
+            <span>Журнал синхронизации с БД</span>
+          </div>
+          <div class="panel__body">
+            <ul class="sync-log__list" id="syncList">
+              <li class="sync-log__empty">Пока нет отправленных запросов.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Правая колонка: предпросмотр кода -->
+      <section class="panel editor">
+        <div class="editor__tabs">
+          <div class="editor__tab">
+            <span class="dot"></span>
+            <span id="editorTabLabel">config</span>
+            <span class="badge-anim" id="badgeAnim">
+              <video src="data/videodata/badge-award-animation.gif.mp4" muted playsinline></video>
+            </span>
+          </div>
+          <div class="editor__actions">
+            <button type="button" class="icon-btn" id="copyBtn" disabled>
+              <svg class="icon"><use href="#icon-copy"></use></svg>
+              Скопировать
+            </button>
+            <button type="button" class="icon-btn icon-btn--success" id="downloadBtn" disabled>
+              <svg class="icon"><use href="#icon-download"></use></svg>
+              Скачать файл
+            </button>
+          </div>
+        </div>
+
+        <div class="editor__body">
+          <div class="editor__placeholder" id="editorPlaceholder">
+            <svg class="icon"><use href="#icon-file"></use></svg>
+            <div>Заполните параметры слева и нажмите «Сгенерировать конфиг»</div>
+          </div>
+          <pre class="editor__lines" id="editorLines" hidden></pre>
+          <pre class="editor__code" id="editorCode" hidden></pre>
+        </div>
+
+        <div class="editor__status">
+          <span class="status-pill" id="editorStatus"><span class="dot"></span><span class="status-text">Ожидание генерации</span></span>
+          <span>gpack gPST</span>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <svg class="icon"><use href="#icon-check"></use></svg>
+  <span id="toastText"></span>
+</div>
+
+<script type="module" src="data/js/config-generator.js"></script>
+</body>
+</html>

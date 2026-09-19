@@ -1,0 +1,11 @@
+name: HTTP Console
+icon: svg:terminal
+version: 1.0
+entry: index.html
+files: index.html
+description: Сетевая терминальная консоль и утилита HTTP-запросов для RID3 OS.
+window.width: 760
+window.height: 520
+window.resizable: true
+permissions: time, filesystem, storage, clipboard, notifications, device_info, apps_list, network
+resources.memory: 64

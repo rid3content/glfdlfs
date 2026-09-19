@@ -1,0 +1,15 @@
+# RID3 Registry Node (.rnn) — build-time дескриптор приложения.
+# Используется lib/local/script.py при генерации apps/apps.json
+# для статического деплоя. Не путать с .rva (формат установки
+# приложений пользователем через UI ОС в браузере).
+name: Калькулятор
+icon: svg:calculator
+version: 2.0
+entry: index.html
+files: index.html
+description: Встроенный калькулятор RID3 OS.
+window.width: 300
+window.height: 420
+window.resizable: false
+permissions:
+resources.memory: 32

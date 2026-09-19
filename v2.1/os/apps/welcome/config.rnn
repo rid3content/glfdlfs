@@ -1,0 +1,12 @@
+# RID3 Registry Node (.rnn) — build-time дескриптор приложения.
+name: Знакомство с RID3
+icon: svg:wave
+version: 2.0
+entry: index.html
+files: index.html
+description: Приветственное приложение, открывается при первом запуске.
+window.width: 520
+window.height: 460
+window.resizable: true
+permissions: time
+resources.memory: 48

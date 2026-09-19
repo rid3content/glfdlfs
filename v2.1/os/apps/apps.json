@@ -1,0 +1,187 @@
+{
+  "generatedAt": "2026-07-23T15:10:29+00:00",
+  "count": 7,
+  "apps": [
+    {
+      "id": "calculator",
+      "name": "Калькулятор",
+      "icon": "svg:calculator",
+      "version": "2.0",
+      "description": "Встроенный калькулятор RID3 OS.",
+      "path": "apps/calculator",
+      "entry": "apps/calculator/index.html",
+      "config": "apps/calculator/config.rnn",
+      "files": [
+        "apps/calculator/index.html"
+      ],
+      "permissions": [],
+      "window": {
+        "width": 300,
+        "height": 420,
+        "resizable": false
+      },
+      "resources": {
+        "memory": 32
+      }
+    },
+    {
+      "id": "game-1",
+      "name": "Cyber Defender",
+      "icon": "svg:gamepad",
+      "version": "1.0",
+      "description": "Аркадный космический шутер с симуляцией защиты от вирусов и рекордами.",
+      "path": "apps/game-1",
+      "entry": "apps/game-1/index.html",
+      "config": "apps/game-1/config.rnn",
+      "files": [
+        "apps/game-1/index.html"
+      ],
+      "permissions": [
+        "time",
+        "storage",
+        "notifications"
+      ],
+      "window": {
+        "width": 640,
+        "height": 520,
+        "resizable": true
+      },
+      "resources": {
+        "memory": 64
+      }
+    },
+    {
+      "id": "gpack",
+      "name": "Gpack services",
+      "icon": "svg:gamepad",
+      "version": "1.0",
+      "description": "Аркадный космический шутер с симуляцией защиты от вирусов и рекордами.",
+      "path": "apps/gpack",
+      "entry": "apps/gpack/index.html",
+      "config": "apps/gpack/config.rnn",
+      "files": [
+        "apps/gpack/index.html",
+        "apps/gpack/home.html"
+      ],
+      "permissions": [
+        "time",
+        "storage",
+        "notifications"
+      ],
+      "window": {
+        "width": 1000,
+        "height": 950,
+        "resizable": true
+      },
+      "resources": {
+        "memory": 10
+      }
+    },
+    {
+      "id": "http-console",
+      "name": "HTTP Console",
+      "icon": "svg:terminal",
+      "version": "1.0",
+      "description": "Сетевая терминальная консоль и утилита HTTP-запросов для RID3 OS.",
+      "path": "apps/http-console",
+      "entry": "apps/http-console/index.html",
+      "config": "apps/http-console/config.rnn",
+      "files": [
+        "apps/http-console/index.html"
+      ],
+      "permissions": [
+        "time",
+        "filesystem",
+        "storage",
+        "clipboard",
+        "notifications",
+        "device_info",
+        "apps_list",
+        "network"
+      ],
+      "window": {
+        "width": 760,
+        "height": 520,
+        "resizable": true
+      },
+      "resources": {
+        "memory": 64
+      }
+    },
+    {
+      "id": "notes",
+      "name": "Заметки",
+      "icon": "svg:notes",
+      "version": "2.0",
+      "description": "Простой блокнот с сохранением в локальном хранилище.",
+      "path": "apps/notes",
+      "entry": "apps/notes/index.html",
+      "config": "apps/notes/config.rnn",
+      "files": [
+        "apps/notes/index.html",
+        "apps/notes/style.css"
+      ],
+      "permissions": [
+        "storage"
+      ],
+      "window": {
+        "width": 420,
+        "height": 460,
+        "resizable": true
+      },
+      "resources": {
+        "memory": 64
+      }
+    },
+    {
+      "id": "ns",
+      "name": "app svg icons",
+      "icon": "svg:link",
+      "version": "2.0",
+      "description": "",
+      "path": "apps/ns",
+      "entry": "apps/ns/index.html",
+      "config": "apps/ns/config.rnn",
+      "files": [
+        "apps/ns/index.html"
+      ],
+      "permissions": [
+        "time",
+        "storage",
+        "notifications"
+      ],
+      "window": {
+        "width": 640,
+        "height": 520,
+        "resizable": true
+      },
+      "resources": {
+        "memory": 64
+      }
+    },
+    {
+      "id": "welcome",
+      "name": "Знакомство с RID3",
+      "icon": "svg:wave",
+      "version": "2.0",
+      "description": "Приветственное приложение, открывается при первом запуске.",
+      "path": "apps/welcome",
+      "entry": "apps/welcome/index.html",
+      "config": "apps/welcome/config.rnn",
+      "files": [
+        "apps/welcome/index.html"
+      ],
+      "permissions": [
+        "time"
+      ],
+      "window": {
+        "width": 520,
+        "height": 460,
+        "resizable": true
+      },
+      "resources": {
+        "memory": 48
+      }
+    }
+  ]
+}

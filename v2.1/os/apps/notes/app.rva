@@ -1,0 +1,12 @@
+# RVA App Config v2
+app: Заметки
+version: 2.0
+icon: svg:notes
+type: html
+entry: index.html
+files: index.html, style.css
+window.width: 420
+window.height: 460
+window.resizable: true
+permissions: storage
+resources.memory: 64

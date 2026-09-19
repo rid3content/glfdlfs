@@ -1,0 +1,12 @@
+# RVA App Config v2
+app: Калькулятор
+version: 2.0
+icon: svg:calculator
+type: html
+entry: index.html
+files: index.html
+window.width: 300
+window.height: 420
+window.resizable: false
+permissions:
+resources.memory: 32

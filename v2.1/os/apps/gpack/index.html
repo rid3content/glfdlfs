@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>gpack — конструктор конфигурационных файлов для разработчиков</title>
+<meta name="description" content="gpack — сервис для быстрой генерации конфигурационных файлов PostgreSQL, Redis, Nginx, Docker, YAML и JSON. Рабочий инструмент — gPST (program-specific tools)." />
+<meta name="theme-color" content="#0b0e14" />
+<<meta name="robots" content="index, follow" />
+<meta name="keywords" content="генератор конфигов, config generator, postgresql config, redis config, nginx config, docker compose generator, yaml генератор, json генератор, gpack, gPST, program specific tools, конфигурационные файлы онлайн" />
+
+<link rel="icon" type="image/png" href="data/img/logo.png" />
+<link rel="apple-touch-icon" href="data/img/logo.png" />
+<link rel="canonical" href="https://gpack-org.web.app/" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="gpack — конструктор конфигурационных файлов" />
+<meta property="og:description" content="Генерируйте конфиги PostgreSQL, Redis, Nginx, Docker, YAML и JSON за минуту." />
+<meta property="og:image" content="data/img/logo.png" />
+<meta property="og:url" content="https://gpack-org.web.app/" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="data/style/style.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Название Вашей Компании",
+  "url": "https://vash-sayt.com",
+  "logo": "https://vash-sayt.com/logo.png",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+998885880181",
+    "contactType": "customer service"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- Спрайт иконок (используется на обеих страницах) -->
+<svg class="visually-hidden" aria-hidden="true">
+  <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="icon-terminal" viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M7 9l3 3-3 3M12 15h5"/></symbol>
+  <symbol id="icon-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></symbol>
+  <symbol id="icon-layers" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></symbol>
+  <symbol id="icon-server" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="14" width="18" height="7" rx="1.5"/><path d="M7 7.5h.01M7 17.5h.01"/></symbol>
+  <symbol id="icon-box" viewBox="0 0 24 24"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v9l9 5 9-5V8"/><path d="M12 13v9"/></symbol>
+  <symbol id="icon-code" viewBox="0 0 24 24"><path d="m9 18-6-6 6-6M15 6l6 6-6 6"/></symbol>
+  <symbol id="icon-braces" viewBox="0 0 24 24"><path d="M8 3c-2 0-3 1-3 3v4c0 1-.5 2-2 2 1.5 0 2 1 2 2v4c0 2 1 3 3 3"/><path d="M16 3c2 0 3 1 3 3v4c0 1 .5 2 2 2-1.5 0-2 1-2 2v4c0 2-1 3-3 3"/></symbol>
+  <symbol id="icon-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></symbol>
+  <symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></symbol>
+  <symbol id="icon-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="icon-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="icon-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></symbol>
+  <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.5 8.5 8 11 4.5-2.5 8-6 8-11V5l-8-3Z"/></symbol>
+  <symbol id="icon-cloud" viewBox="0 0 24 24"><path d="M17 18a4 4 0 0 0 0-8 5.5 5.5 0 0 0-10.8 1.2A3.5 3.5 0 0 0 7 18h10Z"/></symbol>
+  <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 12 6 8Z"/><path d="M10 19a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="icon-link" viewBox="0 0 24 24"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1.5-1.5"/></symbol>
+</svg>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="index.html">
+      <img class="brand__logo" src="data/img/logo.png" alt="Логотип gpack" width="34" height="34" />
+      <span class="brand__name">gpack</span>
+      <span class="brand__tag">gPST</span>
+    </a>
+    <a class="nav-cta" href="home.html">
+      <span>Открыть gPST</span>
+      <svg class="icon"><use href="#icon-arrow-right"></use></svg>
+    </a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <video class="hero__video" src="data/videodata/bc.mp4" autoplay muted loop playsinline></video>
+    <div class="hero__scrim"></div>
+
+    <div class="hero__content">
+      <span class="hero__eyebrow"><span class="dot"></span>Инструменты для разработчиков</span>
+
+      <h1 class="hero__title" id="typedHeadline" data-text="Конфиги без ручной сборки">Конфиги без ручной сборки</h1>
+
+      <p class="hero__subtitle">
+        gpack собирает готовые конфигурационные файлы для баз данных, серверов
+        и контейнеров по вашим параметрам — без опечаток и поиска синтаксиса
+        в документации.
+      </p>
+
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="home.html">
+          <svg class="icon"><use href="#icon-terminal"></use></svg>
+          Перейти в gPST
+        </a>
+        <a class="btn btn--ghost" href="#features">
+          <svg class="icon"><use href="#icon-code"></use></svg>
+          Что внутри
+        </a>
+      </div>
+
+      <div class="hero__meta">
+        <div><strong>6</strong>технологий на старте</div>
+        <div><strong>2</strong>клика до файла</div>
+        <div><strong>0</strong>лишних полей в форме</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stack-strip">
+    <div class="stack-strip__track" aria-hidden="true">
+      <span><svg class="icon"><use href="#icon-db"></use></svg>PostgreSQL</span>
+      <span><svg class="icon"><use href="#icon-layers"></use></svg>Redis</span>
+      <span><svg class="icon"><use href="#icon-server"></use></svg>Nginx</span>
+      <span><svg class="icon"><use href="#icon-box"></use></svg>Docker</span>
+      <span><svg class="icon"><use href="#icon-code"></use></svg>YAML</span>
+      <span><svg class="icon"><use href="#icon-braces"></use></svg>JSON</span>
+      <span><svg class="icon"><use href="#icon-db"></use></svg>PostgreSQL</span>
+      <span><svg class="icon"><use href="#icon-layers"></use></svg>Redis</span>
+      <span><svg class="icon"><use href="#icon-server"></use></svg>Nginx</span>
+      <span><svg class="icon"><use href="#icon-box"></use></svg>Docker</span>
+      <span><svg class="icon"><use href="#icon-code"></use></svg>YAML</span>
+      <span><svg class="icon"><use href="#icon-braces"></use></svg>JSON</span>
+    </div>
+  </div>
+
+  <section class="section container" id="features">
+    <div class="section__head">
+      <span class="section__eyebrow">Возможности</span>
+      <h2 class="section__title">Всё для инфраструктурных конфигов в одном месте</h2>
+      <p class="section__desc">
+        Каждая карточка ниже — часть платформы gpack. Иконки — из нашей
+        внутренней библиотеки продуктовых модулей.
+      </p>
+    </div>
+
+    <div class="feature-grid">
+      <article class="feature-card">
+        <img class="feature-card__icon" src="data/img/data_connect.png" alt="Подключение к данным" loading="lazy" />
+        <h3 class="feature-card__title">Динамические формы</h3>
+        <p class="feature-card__desc">Поля подстраиваются под выбранную технологию — никаких лишних параметров.</p>
+      </article>
+
+      <article class="feature-card">
+        <img class="feature-card__icon" src="data/img/cloud_storage.png" alt="Хранение конфигов" loading="lazy" />
+        <h3 class="feature-card__title">Экспорт в один клик</h3>
+        <p class="feature-card__desc">Копирование в буфер обмена или скачивание файла с правильным расширением.</p>
+      </article>
+
+      <article class="feature-card">
+        <img class="feature-card__icon" src="data/img/cloud_firestore.png" alt="База данных" loading="lazy" />
+        <h3 class="feature-card__title">История запросов</h3>
+        <p class="feature-card__desc">Каждый сгенерированный конфиг сохраняется в базе для последующего анализа.</p>
+      </article>
+
+      <article class="feature-card">
+        <img class="feature-card__icon" src="data/img/analytics.png" alt="Аналитика использования" loading="lazy" />
+        <h3 class="feature-card__title">Прозрачная аналитика</h3>
+        <p class="feature-card__desc">Понимаем, какие технологии и поля используются чаще всего.</p>
+      </article>
+
+      <article class="feature-card">
+        <img class="feature-card__icon" src="data/img/authentication.png" alt="Авторизация" loading="lazy" />
+        <h3 class="feature-card__title">Готово к авторизации</h3>
+        <p class="feature-card__desc">Платформа спроектирована так, чтобы позже подключить учётные записи команд.</p>
+      </article>
+
+      <article class="feature-card">
+        <img class="feature-card__icon" src="data/img/cloud_messaging.png" alt="Уведомления" loading="lazy" />
+        <h3 class="feature-card__title">Помощник на базе ИИ</h3>
+        <p class="feature-card__desc">Когда включён — предлагает автозаполнение сложных полей на основе накопленной базы.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section container">
+    <div class="section__head">
+      <span class="section__eyebrow">Как это устроено</span>
+      <h2 class="section__title">gPST — рабочий модуль gpack</h2>
+      <p class="section__desc">
+        gPST расшифровывается как program-specific tools — набор специализированных
+        генераторов, каждый заточен под синтаксис своей технологии.
+      </p>
+    </div>
+
+    <div class="feature-grid">
+      <article class="feature-card">
+        <img class="feature-card__icon" src="data/img/dynamic_links.png" alt="Быстрый переход" loading="lazy" />
+        <h3 class="feature-card__title">1. Выберите технологию</h3>
+        <p class="feature-card__desc">PostgreSQL, Redis, Nginx, Docker, YAML или JSON.</p>
+      </article>
+      <article class="feature-card">
+        <img class="feature-card__icon" src="data/img/privacy_contact_empty@2x.png" alt="Заполнение формы" loading="lazy" />
+        <h3 class="feature-card__title">2. Заполните параметры</h3>
+        <p class="feature-card__desc">Форма покажет только те поля, которые нужны именно этой технологии.</p>
+      </article>
+      <article class="feature-card">
+        <img class="feature-card__icon" src="data/img/clouds@2x.png" alt="Готовый файл" loading="lazy" />
+        <h3 class="feature-card__title">3. Заберите файл</h3>
+        <p class="feature-card__desc">Скопируйте или скачайте готовый конфиг — сразу с нужным расширением.</p>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer class="footer container">
+  <div class="footer__brand">
+    <img src="data/img/logo.png" alt="gpack" />
+    <span>gpack — конструктор конфигурационных файлов</span>
+  </div>
+  <span>gpack-org.web.app</span>
+</footer>
+
+<script type="module" src="data/js/landing.js"></script>
+</body>
+</html>
